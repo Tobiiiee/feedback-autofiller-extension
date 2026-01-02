@@ -1,25 +1,44 @@
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'fillForm') {
-        const result = fillFeedbackForm(request.choice, request.fillComments);
-        sendResponse(result);
+        // Handle async response
+        fillFeedbackForm(request.choice, request.fillComments)
+            .then(result => sendResponse(result))
+            .catch(error => sendResponse({ success: false, message: error.message }));
+        return true; // Keep message channel open for async response
     }
-    return true; // Keep message channel open for async response
 });
 
 /**
- * Main function to fill feedback form
+ * Sleep utility for adding delays
+ * @param {number} ms - Milliseconds to sleep
+ */
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Generate random delay to simulate human behavior
+ * @param {number} min - Minimum delay in ms
+ * @param {number} max - Maximum delay in ms
+ */
+function randomDelay(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Main function to fill feedback form with human-like delays
  * @param {string} choice - The selected choice (A, B, C, or D)
  * @param {boolean} fillComments - Whether to fill comment fields
  * @returns {object} Result object with success status and count
  */
-function fillFeedbackForm(choice, fillComments) {
+async function fillFeedbackForm(choice, fillComments) {
     let filledCount = 0;
 
     // Strategy 1: Find radio button groups (common in feedback forms)
     const radioGroups = findRadioButtonGroups();
 
-    radioGroups.forEach(group => {
+    for (const group of radioGroups) {
         const radioToSelect = Array.from(group.radios).find(radio => {
             // Check if the value or label matches the choice
             const value = radio.value.toUpperCase();
@@ -31,6 +50,9 @@ function fillFeedbackForm(choice, fillComments) {
         });
 
         if (radioToSelect && !radioToSelect.checked) {
+            // Add human-like delay before clicking
+            await sleep(randomDelay(80, 250));
+
             radioToSelect.checked = true;
             radioToSelect.dispatchEvent(new Event('change', { bubbles: true }));
             radioToSelect.dispatchEvent(new Event('click', { bubbles: true }));
@@ -39,14 +61,14 @@ function fillFeedbackForm(choice, fillComments) {
             // Visual feedback
             highlightElement(radioToSelect.parentElement);
         }
-    });
+    }
 
     // Strategy 2: Find select dropdowns
     const selects = document.querySelectorAll('select');
-    selects.forEach(select => {
+    for (const select of selects) {
         // Skip if it's not a question dropdown (e.g., course selection)
         if (select.id.includes('course') || select.id.includes('subject')) {
-            return;
+            continue;
         }
 
         const options = Array.from(select.options);
@@ -59,24 +81,30 @@ function fillFeedbackForm(choice, fillComments) {
         });
 
         if (optionToSelect && select.value !== optionToSelect.value) {
+            // Add human-like delay before selecting
+            await sleep(randomDelay(80, 250));
+
             select.value = optionToSelect.value;
             select.dispatchEvent(new Event('change', { bubbles: true }));
             filledCount++;
             highlightElement(select);
         }
-    });
+    }
 
     // Strategy 3: Fill comment fields if requested
     if (fillComments) {
         const commentFields = findCommentFields();
-        commentFields.forEach(field => {
+        for (const field of commentFields) {
             if (!field.value || field.value.trim() === '') {
+                // Add human-like delay before typing
+                await sleep(randomDelay(100, 300));
+
                 field.value = 'N/A';
                 field.dispatchEvent(new Event('input', { bubbles: true }));
                 field.dispatchEvent(new Event('change', { bubbles: true }));
                 highlightElement(field);
             }
-        });
+        }
     }
 
     if (filledCount === 0) {

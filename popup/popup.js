@@ -43,13 +43,13 @@ fillButton.addEventListener('click', async () => {
 
         // Show success message
         if (response && response.success) {
-            showMessage(`✓ Form filled successfully! ${response.count} question(s) auto-filled.`, 'success');
+            showMessage(`Form filled successfully! ${response.count} question(s) auto-filled.`, 'success');
         } else {
-            showMessage(response?.message || '✗ No form found on this page.', 'error');
+            showMessage(response?.message || 'No form found on this page.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showMessage('✗ Error: Make sure you\'re on a QEC form page.', 'error');
+        showMessage('Error: Make sure you\'re on a Feedback form page.', 'error');
     }
 });
 
@@ -57,7 +57,7 @@ fillButton.addEventListener('click', async () => {
 function showMessage(text, type) {
     messageDiv.textContent = text;
     messageDiv.className = `message ${type}`;
-    
+
     // Auto-hide after 3 seconds
     setTimeout(() => {
         messageDiv.classList.add('hidden');
