@@ -2,7 +2,7 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'fillForm') {
         // Handle async response
-        fillFeedbackForm(request.choice, request.fillComments)
+        fillFeedbackForm(request.choice, request.fillComments, request.useDelays)
             .then(result => sendResponse(result))
             .catch(error => sendResponse({ success: false, message: error.message }));
         return true; // Keep message channel open for async response
@@ -30,9 +30,10 @@ function randomDelay(min, max) {
  * Main function to fill feedback form with human-like delays
  * @param {string} choice - The selected choice (A, B, C, or D)
  * @param {boolean} fillComments - Whether to fill comment fields
+ * @param {boolean} useDelays - Whether to add human-like delays
  * @returns {object} Result object with success status and count
  */
-async function fillFeedbackForm(choice, fillComments) {
+async function fillFeedbackForm(choice, fillComments, useDelays = true) {
     let filledCount = 0;
 
     // Strategy 1: Find radio button groups (common in feedback forms)
@@ -50,8 +51,10 @@ async function fillFeedbackForm(choice, fillComments) {
         });
 
         if (radioToSelect && !radioToSelect.checked) {
-            // Add human-like delay before clicking
-            await sleep(randomDelay(80, 250));
+            // Add human-like delay before clicking (if enabled)
+            if (useDelays) {
+                await sleep(randomDelay(80, 250));
+            }
 
             radioToSelect.checked = true;
             radioToSelect.dispatchEvent(new Event('change', { bubbles: true }));
@@ -81,8 +84,10 @@ async function fillFeedbackForm(choice, fillComments) {
         });
 
         if (optionToSelect && select.value !== optionToSelect.value) {
-            // Add human-like delay before selecting
-            await sleep(randomDelay(80, 250));
+            // Add human-like delay before selecting (if enabled)
+            if (useDelays) {
+                await sleep(randomDelay(80, 250));
+            }
 
             select.value = optionToSelect.value;
             select.dispatchEvent(new Event('change', { bubbles: true }));
@@ -96,8 +101,10 @@ async function fillFeedbackForm(choice, fillComments) {
         const commentFields = findCommentFields();
         for (const field of commentFields) {
             if (!field.value || field.value.trim() === '') {
-                // Add human-like delay before typing
-                await sleep(randomDelay(100, 300));
+                // Add human-like delay before typing (if enabled)
+                if (useDelays) {
+                    await sleep(randomDelay(100, 300));
+                }
 
                 field.value = 'N/A';
                 field.dispatchEvent(new Event('input', { bubbles: true }));

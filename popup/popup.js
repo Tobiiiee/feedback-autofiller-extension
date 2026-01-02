@@ -2,15 +2,22 @@
 const fillButton = document.getElementById('fillButton');
 const messageDiv = document.getElementById('message');
 const fillCommentsCheckbox = document.getElementById('fillComments');
+const useDelaysCheckbox = document.getElementById('useDelays');
 
 // Load saved preferences
-chrome.storage.sync.get(['selectedChoice', 'fillComments'], (result) => {
+chrome.storage.sync.get(['selectedChoice', 'fillComments', 'useDelays'], (result) => {
     if (result.selectedChoice) {
         const radio = document.querySelector(`input[name="choice"][value="${result.selectedChoice}"]`);
         if (radio) radio.checked = true;
     }
     if (result.fillComments !== undefined) {
         fillCommentsCheckbox.checked = result.fillComments;
+    }
+    if (result.useDelays !== undefined) {
+        useDelaysCheckbox.checked = result.useDelays;
+    } else {
+        // Default to true (delays enabled) for safety
+        useDelaysCheckbox.checked = true;
     }
 });
 
@@ -25,10 +32,15 @@ fillCommentsCheckbox.addEventListener('change', () => {
     chrome.storage.sync.set({ fillComments: fillCommentsCheckbox.checked });
 });
 
+useDelaysCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ useDelays: useDelaysCheckbox.checked });
+});
+
 // Handle fill button click
 fillButton.addEventListener('click', async () => {
     const selectedChoice = document.querySelector('input[name="choice"]:checked').value;
     const shouldFillComments = fillCommentsCheckbox.checked;
+    const shouldUseDelays = useDelaysCheckbox.checked;
 
     try {
         // Get the active tab
@@ -38,7 +50,8 @@ fillButton.addEventListener('click', async () => {
         const response = await chrome.tabs.sendMessage(tab.id, {
             action: 'fillForm',
             choice: selectedChoice,
-            fillComments: shouldFillComments
+            fillComments: shouldFillComments,
+            useDelays: shouldUseDelays
         });
 
         // Show success message
