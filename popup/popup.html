@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Auto-Filler</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Feedback Auto-Filler</h1>
+            <p class="subtitle">Auto-fill evaluation forms instantly</p>
+        </div>
+
+        <div class="content">
+            <div class="option-group">
+                <label class="label">Select your answer choice:</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="choice" value="A" checked>
+                        <span class="radio-label">A - Strongly Agree</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="choice" value="B">
+                        <span class="radio-label">B - Agree</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="choice" value="C">
+                        <span class="radio-label">C - Disagree</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="choice" value="D">
+                        <span class="radio-label">D - Strongly Disagree</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <label class="checkbox-option">
+                    <input type="checkbox" id="fillComments">
+                    <span class="checkbox-label">Auto-fill comments with "N/A"</span>
+                </label>
+            </div>
+
+            <button id="fillButton" class="btn-primary">Fill Form</button>
+
+            <div id="message" class="message hidden"></div>
+        </div>
+
+        <div class="footer">
+            <p class="note">💡 Select an option above, then click "Fill Form" to auto-complete the feedback form.</p>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
